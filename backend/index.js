@@ -7,6 +7,7 @@ import authRoutes from './Routes/auth.js';
 import userRoutes from './Routes/user.js';
 import doctorRoutes from './Routes/doctors.js';
 import reviewRoutes from './Routes/review.js';
+import bookingRoute from './Routes/booking.js';
 
 dotenv.config();
 
@@ -47,8 +48,7 @@ app.use('/api/v1/auth', authRoutes); //domain/api/v1/auth/register
 app.use('/api/v1/users', userRoutes); //domain/api/v1/user/:id
 app.use('/api/v1/doctors', doctorRoutes); //domain/api/v1/doctors/:id
 app.use('/api/v1/reviews', reviewRoutes); //domain/api/v1/reviews/:id
-
-
+app.use('/api/v1/bookings', bookingRoute); //domain/api/v1/bookings/:id
 
 
 app.listen(port, () => {
