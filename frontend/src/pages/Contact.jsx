@@ -4,9 +4,9 @@ const Contact = () => {
   return (
     <>
       <section>
-        <div className="px-4 mx-auto max-w-screen-md  ">
-          <h2 className="heading text-center ">Contact us</h2>
-          <p className="mb-8 lg:mb-16 font-light text-center text__para">
+        <div className="max-w-screen-md px-4 mx-auto ">
+          <h2 className="text-center heading ">Contact us</h2>
+          <p className="mb-8 font-light text-center lg:mb-16 text__para">
             Lorem ipsum dolor sit amet consectetur adipisicing elit. Saepe,
             libero.
           </p>
@@ -19,7 +19,7 @@ const Contact = () => {
                 type="email"
                 id="email"
                 placeholder="example@gmail.com"
-                className="form__input mt-1"
+                className="mt-1 form__input"
               />
             </div>
             <div>
@@ -30,7 +30,7 @@ const Contact = () => {
                 type="text"
                 id="subject"
                 placeholder="Let us know how we can help you"
-                className="form__input mt-1"
+                className="mt-1 form__input"
               />
             </div>
             <div className=" sm:col-span-2">
@@ -42,10 +42,10 @@ const Contact = () => {
                 type="text"
                 id="message"
                 placeholder="Leave a comment..."
-                className="form__input mt-1"
+                className="mt-1 form__input"
               />
             </div>
-            <button type="submit " className="btn rounded sm:w-fit ">Submit</button>
+            <button type="submit " className="rounded btn sm:w-fit ">Submit</button>
           </form>
         </div>
       </section>
