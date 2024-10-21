@@ -9,7 +9,8 @@ const Profile = ({user}) => {
 
   const [selectedFile, setSelectedFile] = useState(null);
   const [loading,setLoading]=useState(false);
-  
+  const [errors, setErrors] = useState({});
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -18,11 +19,52 @@ const Profile = ({user}) => {
     gender: "",
     bloodType: "",
   });
+
   const navigate=useNavigate();
+
   useEffect(()=>{
     setFormData({name:user.name,email:user.email,photo:user.photo,gender:user.gender,bloodType:user.bloodType})
-  },[user])
-  
+  },[user]);
+
+  const validate = () => {
+    let newErrors = {};
+    
+    // Name validation
+    if (!formData.name || formData.name.length < 2) {
+      newErrors.name = "Name must be at least 2 characters long.";
+    }
+
+    // Email validation (though email is read-only, let's still validate)
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      newErrors.email = "Invalid email address.";
+    }
+
+    // Password validation
+    if (formData.password && formData.password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters long.";
+    }
+
+    // Blood type validation
+    const validBloodTypes = ["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"];
+    if (!validBloodTypes.includes(formData.bloodType)) {
+      newErrors.bloodType = "Invalid blood type.";
+    }
+
+    // Gender validation
+    if (!formData.gender) {
+      newErrors.gender = "Gender is required.";
+    }
+
+    // Photo validation (ensure a file is selected and its size)
+    if (selectedFile && selectedFile.size > 2 * 1024 * 1024) {
+      newErrors.photo = "Image size must be less than 2MB.";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -30,38 +72,47 @@ const Profile = ({user}) => {
   const handleFileInputChange = async (event) => {
     const file = event.target.files[0];
     
-    const data=await uploadImageToCloudinary(file)
+    // File size validation
+    if (file.size > 2 * 1024 * 1024) {
+      setErrors(prev => ({ ...prev, photo: "Image size must be less than 2MB." }));
+      return;
+    }
 
-    setSelectedFile(data.url)
-    setFormData({...formData,photo:data.url})
+    const data = await uploadImageToCloudinary(file);
+    setSelectedFile(file);
+    setFormData({...formData, photo: data.url});
   };
 
-  const submitHandler = async event => {
-     
-      event.preventDefault();
-      setLoading(true)
+  const submitHandler = async (event) => {
+    event.preventDefault();
 
-      try {
-        const res=await fetch(`${BASE_URL}/users/${user._id}`,{
-          method:'put',
-          headers:{
-            'content-type':'application/json',
-            Authorization:`Bearer ${token}`
-          },
-          body:JSON.stringify(formData)
-        })
+    // Validate form before submission
+    if (!validate()) return;
 
-        const {message}=await res.json()
-        if (!res.ok) {
-          throw new Error(message)          
-        }
-        setLoading(false)
-        toast.success(message)
-        navigate('/users/profile/me')
-      } catch (err) {
-        toast.error(err.message)
-        setLoading(false)
+    setLoading(true);
+
+    try {
+      const res = await fetch(`${BASE_URL}/users/${user._id}`, {
+        method: 'put',
+        headers: {
+          'content-type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(formData)
+      });
+
+      const {message} = await res.json();
+      if (!res.ok) {
+        throw new Error(message);
       }
+
+      setLoading(false);
+      toast.success(message);
+      navigate('/users/profile/me');
+    } catch (err) {
+      toast.error(err.message);
+      setLoading(false);
+    }
   };
 
   return (
@@ -77,6 +128,7 @@ const Profile = ({user}) => {
                     className="w-full pr-4 py-3 border-b border-solid border-[#0066ff61] focus-outline-none focus:border-b-primaryColor text-[16px] leading-7 text-headingColor placeholder:text-textColor cursor-pointer"
                     required
                   />
+                  {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
                 </div>
                 <div className="mb-5">
                   <input
@@ -89,6 +141,7 @@ const Profile = ({user}) => {
                     aria-readonly
                     readOnly
                   />
+                  {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
                 </div>
                 <div className="mb-5">
                   <input
@@ -99,6 +152,7 @@ const Profile = ({user}) => {
                     onChange={handleInputChange}
                     className="w-full pr-4 py-3 border-b border-solid border-[#0066ff61] focus-outline-none focus:border-b-primaryColor text-[16px] leading-7 text-headingColor placeholder:text-textColor cursor-pointer"
                   />
+                  {errors.password && <p className="text-sm text-red-500">{errors.password}</p>}
                 </div>
                 <div className="mb-5">
                   <input
@@ -110,6 +164,7 @@ const Profile = ({user}) => {
                     className="w-full pr-4 py-3 border-b border-solid border-[#0066ff61] focus-outline-none focus:border-b-primaryColor text-[16px] leading-7 text-headingColor placeholder:text-textColor cursor-pointer"
                     required
                   />
+                  {errors.bloodType && <p className="text-sm text-red-500">{errors.bloodType}</p>}
                 </div>
 
                 <div className="flex items-center justify-between mb-5">
@@ -127,6 +182,7 @@ const Profile = ({user}) => {
                       <option value="other">Other</option>
                     </select>
                   </label>
+                  {errors.gender && <p className="text-sm text-red-500">{errors.gender}</p>}
                 </div>
 
                 <div className="flex items-center gap-3 mb-5 ">
@@ -150,9 +206,10 @@ const Profile = ({user}) => {
                       htmlFor="customFile"
                       className="absolute top-0 left-0 w-full h-full flex items-center px-[0.75rem] py-[0.375rem] text-[15px] leading-6 overflow-hidden bg-[#0066ff46] text-headingColor font-semibold rounded-lg truncate cursor-pointer"
                     >
-                      {selectedFile? selectedFile.name :"upload photo"}
+                      {selectedFile ? selectedFile.name : "upload photo"}
                     </label>
                   </div>
+                  {errors.photo && <p className="text-sm text-red-500">{errors.photo}</p>}
                 </div>
 
                 <div className="mt-7">
@@ -164,8 +221,6 @@ const Profile = ({user}) => {
                     { loading ? <HashLoader size={25} color="#ffffff"/>:  'Update'}
                   </button>
                 </div>
-
-                
               </form>
     </div>
   );
