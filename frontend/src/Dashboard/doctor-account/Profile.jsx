@@ -202,7 +202,7 @@ const Profile = ({ doctorData }) => {
         <div className="mb-5">
           <p className="form__label">Phone</p>
           <input
-            type="number"
+            type="text"
             name="phone"
             value={formData.phone}
             onChange={handleInputChange}

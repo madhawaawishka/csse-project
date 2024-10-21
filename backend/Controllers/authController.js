@@ -1,5 +1,5 @@
 import User from '../models/UserSchema.js';
-import Doctor from '../models/DoctorSchema.js';
+import Doctor from '../Models/DoctorSchema.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 

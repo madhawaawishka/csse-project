@@ -1,6 +1,5 @@
 import Review from '../Models/reviewSchema.js';
-import Doctor from '../models/DoctorSchema.js';
-
+import Doctor from '../Models/DoctorSchema.js';
 
 // get all reviews
 
